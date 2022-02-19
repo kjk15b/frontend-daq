@@ -17,6 +17,8 @@ def ingestRoute(sensor):
         if len(dataStream[sensor]) > 5:
             dataStream[sensor].pop(0)
         dataStream[sensor].append(value)
+        return "{},{}".format(sensor, value)
+    return "Nothing to see here"
 
 if __name__ == '__main__':
     app.run(debug=sys.argv[1], host=sys.argv[2],
