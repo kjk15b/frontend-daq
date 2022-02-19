@@ -1,3 +1,4 @@
+from termios import XTABS
 from flask import Flask, request, render_template, send_file, make_response
 import sys
 import io
@@ -9,6 +10,12 @@ dataStream = {'UR' : list(),
               'UL' : list(),
               'LR' : list(),
               'LL' : list()}
+
+colors = {'UR' : 'green',
+              'UL' : 'blue',
+              'LR' : 'red',
+              'LL' : 'purple'}
+                            
 
 app = Flask(__name__)
 
@@ -22,22 +29,22 @@ def ingestRoute(sensor):
         data = request.form.to_dict()
         value = data['data']
         print("received: {}, value={}".format(sensor, value))
-        if len(dataStream[sensor]) > 5:
+        if len(dataStream[sensor]) > 100:
             dataStream[sensor].pop(0)
         dataStream[sensor].append(value)
         return "{},{}".format(sensor, value)
     return "Nothing to see here"
 
-@app.route('/plot/UR')
-def plotSensor():
+@app.route('/plot/<sensor>')
+def plotSensor(sensor):
     fig = Figure()
     axis = fig.add_subplot(1, 1, 1)
-    axis.set_title("Raw Feed: UR")
+    axis.set_title("Raw Feed: {}".format(sensor))
     axis.set_xlabel("Samples")
     axis.set_ylabel("Raw Feed")
-    xs = range(len(dataStream['UR']))
-    print(xs)
-    axis.plot(xs, dataStream['UR'])
+    xs = range(len(dataStream[sensor]))
+    #print(XTABS)
+    axis.plot(xs, dataStream[sensor], color=colors[sensor])
     canvas = FigureCanvas(fig)
     output = io.BytesIO()
     canvas.print_png(output)
